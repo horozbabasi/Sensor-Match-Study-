@@ -1,9 +1,11 @@
 """
 Regenerate every figure in the paper from the released result files.
 
-    python make_figures.py [path/to/release]      # default: ./release
+    python make_figures.py [path]     # default: ./release
 
-Reads only the CSV files in <release>/results/ and writes fig1..fig8 to ./figures.
+`path` may be either the unzipped release folder or the .zip archive itself --
+the script reads the CSVs straight out of the zip, so unzipping is optional.
+Only the files in results/ are read; fig1..fig8 are written to ./figures.
 Nothing is retrained and no model is loaded: each figure is a plot of numbers that
 are already in the archive.
 
@@ -17,6 +19,7 @@ Requires: numpy, pandas, matplotlib.
 
 import os
 import sys
+import zipfile
 
 import numpy as np
 import pandas as pd
@@ -27,7 +30,7 @@ import matplotlib.pyplot as plt
 # --------------------------------------------------------------------------
 # Setup
 # --------------------------------------------------------------------------
-ROOT = sys.argv[1] if len(sys.argv) > 1 else "release"   # where the archive was unzipped
+ROOT = sys.argv[1] if len(sys.argv) > 1 else "release"   # release folder, or the .zip itself
 OUT = "figures"
 os.makedirs(OUT, exist_ok=True)
 
@@ -47,8 +50,18 @@ x = np.arange(6)
 # Load the per-run results and average over the five seeds
 # --------------------------------------------------------------------------
 # Each CSV holds one row per (configuration, label budget, seed) run.
-eurosat = pd.read_csv(f"{ROOT}/results/eurosat_results.csv")
-resisc = pd.read_csv(f"{ROOT}/results/resisc45_results.csv")
+def load(name):
+    """Read results/<name> from either an unzipped folder or the .zip archive."""
+    if ROOT.lower().endswith(".zip"):
+        with zipfile.ZipFile(ROOT) as archive:
+            member = next(m for m in archive.namelist() if m.endswith(f"results/{name}"))
+            with archive.open(member) as handle:
+                return pd.read_csv(handle)
+    return pd.read_csv(os.path.join(ROOT, "results", name))
+
+
+eurosat = load("eurosat_results.csv")
+resisc = load("resisc45_results.csv")
 
 runs = pd.concat([eurosat, resisc])
 runs = runs[runs.augment == False]        # main grid only; the augmentation tier is separate
@@ -289,7 +302,7 @@ plt.close(fig)
 # --------------------------------------------------------------------------
 # Classes are sorted by the matched aerial arm, so the hardest classes sit on
 # the left. The scratch line shows how uneven performance is without pretraining.
-per_class = pd.read_csv(f"{ROOT}/results/per_class_f1.csv")
+per_class = load("per_class_f1.csv")
 subset = per_class[
     (per_class.dataset == "resisc45")
     & (per_class.k_shot.astype(str) == "full")

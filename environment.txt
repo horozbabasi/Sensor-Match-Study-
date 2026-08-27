@@ -1,0 +1,22 @@
+==========================================================
+ENVIRONMENT
+==========================================================
+  python                : 3.12.13
+  torch                 : 2.11.0+cu128
+  torchvision           : 0.26.0+cu128
+  cuda_runtime          : 12.8
+  cuda_available        : True
+  cudnn                 : 91900
+  gpu                   : NVIDIA A100-SXM4-80GB
+  vram_gb               : 85.1
+  bf16                  : True
+  numpy                 : 2.0.2
+  scipy                 : 1.16.3
+  sklearn               : 1.6.1
+  statsmodels           : 0.14.6
+  pandas                : 2.2.3
+  rasterio              : 1.5.1
+  satlaspretrain_models : installed
+  PIL                   : 11.3.0
+  matplotlib            : 3.10.0
+==========================================================
