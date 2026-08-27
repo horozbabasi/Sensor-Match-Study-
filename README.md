@@ -61,6 +61,3 @@ every result row. NWPU-RESISC45 uses the split in `splits/`.
 - NWPU-RESISC45 — Cheng et al. (2017)
 - SatlasPretrain checkpoints — Bastani et al. (2023)
 
-## Citation
-
-A citation will be added here once the paper has a DOI.
